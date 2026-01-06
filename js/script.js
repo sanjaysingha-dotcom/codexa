@@ -51,19 +51,45 @@ if (registerForm) {
         const formData = new FormData(registerForm);
         const data = Object.fromEntries(formData);
         
-        // Build URL parameters for summary page
-        const params = new URLSearchParams();
-        params.append('fullName', data.fullName || '');
-        params.append('email', data.email || '');
-        params.append('phone', data.phone || '');
-        params.append('city', data.city || '');
-        params.append('collection', data.collection || 'home');
+        // Map collection value to readable text
+        const collectionMap = {
+            'home': 'At Home',
+            'centre': 'At Collection Centre (RCP)',
+            'guidance': 'Need Guidance'
+        };
         
-        // Open summary page in new tab
-        const summaryUrl = `summary.html?${params.toString()}`;
-        window.open(summaryUrl, '_blank');
+        // Build API payload
+        const payload = {
+            fullName: data.fullName || '',
+            emailAddress: data.email || '',
+            phoneNumber: data.phone || '',
+            city: data.city || '',
+            preferredSampleCollection: collectionMap[data.collection] || 'At Home',
+            totalAmount: '1'
+        };
         
-        // Reset form
+        // Create a hidden form to POST directly to the API URL
+        const apiForm = document.createElement('form');
+        apiForm.method = 'POST';
+        apiForm.action = 'https://edge.qa.karkinos.in/external/payment/initiate/summary';
+        apiForm.target = '_blank';
+        apiForm.style.display = 'none';
+        
+        // Add hidden inputs for each payload field
+        for (const [key, value] of Object.entries(payload)) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            apiForm.appendChild(input);
+        }
+        
+        // Append form to body, submit it, then remove it
+        document.body.appendChild(apiForm);
+        apiForm.submit();
+        document.body.removeChild(apiForm);
+        
+        // Reset the original form
         registerForm.reset();
     });
 }
