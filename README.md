@@ -1,4 +1,3 @@
-# codexa
 # myCodexa Landing Page
 
 A responsive replica of the myCodexa.ai website built with HTML, CSS, and JavaScript.
